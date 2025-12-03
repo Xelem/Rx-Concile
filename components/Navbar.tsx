@@ -14,7 +14,7 @@ const Navbar = () => {
             <div className="bg-blue-600 p-1.5 rounded-lg">
               <Activity className="h-6 w-6 text-white" />
             </div>
-            <span className="font-bold text-xl tracking-tight text-slate-800">RxConcile</span>
+            <span className="font-header font-bold text-xl tracking-tight text-slate-800">RxConcile</span>
           </div>
           <div className="flex items-center gap-4">
             {isSessionActive ? (
