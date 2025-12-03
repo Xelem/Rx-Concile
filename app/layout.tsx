@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import {  Nunito } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import { SmartProvider } from "./context/SmartContext";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -23,8 +24,10 @@ export default function RootLayout({
       <body
         className={`${nunito.variable} antialiased`}
       >
-        <Navbar />
-        {children}
+        <SmartProvider>
+          <Navbar />
+          {children}
+        </SmartProvider>
       </body>
     </html>
   );
