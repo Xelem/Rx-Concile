@@ -1,10 +1,45 @@
 'use client';
 
 import { useSmart } from './context/SmartContext';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle, FileText, Pill, RefreshCw } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { MedicationRequest, BundleEntry, Coding } from 'fhir/r4';
+
+interface MappedMedicationRequest extends Pick<MedicationRequest, 'id' | 'status'> {
+  name: string;
+  prescriber: string;
+  date: string;
+  dosage: string;
+  rxNormCode?: string;
+}
 
 export default function DashboardPage() {
-  const { patient, error, loading } = useSmart();
+  const { patient, medsBundle, error, loading } = useSmart();
+  const [meds, setMeds] = useState<MappedMedicationRequest[]>([])
+
+  useEffect(() => {
+    if (medsBundle?.entry) {
+      const mappedMeds = medsBundle.entry.map((entry: BundleEntry) => {
+        const res = entry.resource as MedicationRequest;
+        
+        // Extract RxNorm Code (if available) for later use
+        const coding = res.medicationCodeableConcept?.coding?.find(
+          (c: Coding) => c.system === "http://www.nlm.nih.gov/research/umls/rxnorm"
+        );
+
+        return {
+          id: res.id,
+          name: res.medicationCodeableConcept?.text || coding?.display || "Unknown Medication",
+          prescriber: res.requester?.display || "Unknown Provider",
+          status: res.status,
+          date: res.authoredOn?.split('T')[0] || "N/A", // Format: YYYY-MM-DD
+          dosage: res.dosageInstruction?.[0]?.text || "As directed",
+          rxNormCode: coding?.code
+        };
+      });
+      setMeds(mappedMeds);
+    }
+  }, [medsBundle]);
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -39,31 +74,90 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-slate-50 p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">RxConcile Dashboard</h1>
-        {patient && (
-          <div className="mt-4 p-6 bg-white rounded-xl shadow-sm border border-slate-200">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-bold text-slate-800">
-                  {patient.name?.[0]?.given?.join(' ')} {patient.name?.[0]?.family}
-                </h2>
-                <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2 text-sm text-slate-500">
-                  <span>ID: <span className="font-medium text-slate-700">{patient.id}</span></span>
-                  <span>Gender: <span className="font-medium text-slate-700 capitalize">{patient.gender}</span></span>
-                  <span>DOB: <span className="font-medium text-slate-700">{patient.birthDate}</span></span>
+        <div className="bg-slate-900 text-white shadow-md">
+          {patient && (
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 bg-slate-700 rounded-full flex items-center justify-center border-2 border-slate-600">
+                    <span className="text-xl font-bold">
+                      {patient?.name?.[0]?.given?.[0]?.[0]}{patient?.name?.[0]?.family?.[0]}
+                    </span>
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold leading-tight">
+                      {patient?.name?.[0]?.given?.join(' ')} {patient?.name?.[0]?.family}
+                    </h2>
+                    <p className="text-slate-400 text-sm">
+                      DOB: {patient?.birthDate} • Sex: {patient?.gender} • ID: {patient?.id}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
+          )}
           </div>
-        )}
-      </div>
-
-      {/* Placeholder for the Design I created in the Mock file */}
-      <div className="bg-white p-12 rounded-xl border-2 border-dashed border-slate-300 text-center">
-        <div className="max-w-sm mx-auto">
-          <p className="text-slate-400 font-medium">Medication List Component</p>
-          <p className="text-sm text-slate-400 mt-1">Will be implemented in the next step</p>
+      
+        
+        {/* SPRINT 3 PLACEHOLDER: ALERT SECTION WILL GO HERE */}
+        
+        {/* 4. MEDICATION LIST TABLE */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mt-8">
+          <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+            <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <FileText className="h-5 w-5 text-slate-400" />
+              Active Medications
+            </h3>
+            <span className="text-sm text-slate-500 bg-white px-2 py-1 rounded border border-slate-200">
+              Source: EHR (FHIR R4)
+            </span>
+          </div>
+          
+          <div className="overflow-x-auto">
+            {meds.length === 0 ? (
+               <div className="p-10 text-center text-slate-500">
+                 No active medications found for this patient in the sandbox.
+               </div>
+            ) : (
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                  <th className="px-6 py-4 border-b border-slate-200">Medication</th>
+                  <th className="px-6 py-4 border-b border-slate-200">Dosage</th>
+                  <th className="px-6 py-4 border-b border-slate-200">Prescriber</th>
+                  <th className="px-6 py-4 border-b border-slate-200">Date</th>
+                  <th className="px-6 py-4 border-b border-slate-200 text-right">RxNorm</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {meds.map((med) => (
+                  <tr key={med.id} className="hover:bg-slate-50/80 transition-colors group">
+                    <td className="px-6 py-4 font-medium text-slate-900 flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <Pill className="h-4 w-4" />
+                      </div>
+                      {med.name}
+                    </td>
+                    <td className="px-6 py-4 text-slate-600 text-sm">
+                      {med.dosage}
+                    </td>
+                    <td className="px-6 py-4 text-slate-600 text-sm">
+                      {med.prescriber}
+                    </td>
+                    <td className="px-6 py-4 text-slate-500 text-sm font-mono">
+                      {med.date}
+                    </td>
+                    <td className="px-6 py-4 text-right text-xs text-slate-400 font-mono">
+                      {med.rxNormCode || "N/A"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            )}
+          </div>
         </div>
+
       </div>
     </div>
   );
