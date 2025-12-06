@@ -12,9 +12,10 @@ import { findDuplicates } from '@/lib/medication-utils'
 import AlertSection, { Alert } from '@/components/AlertSection'
 
 export default function DashboardPage() {
-    const { patient, medsBundle, error, loading } = useSmart()
+    const { patient, medsBundle, error, loading, client } = useSmart()
     const [meds, setMeds] = useState<MappedMedicationRequest[]>([])
-    const [alert, setAlert] = useState<Alert | null>(null)
+    const [alerts, setAlerts] = useState<Alert[]>([])
+    const [processingId, setProcessingId] = useState<string | null>(null)
 
     useEffect(() => {
         const fetchMeds = async () => {
@@ -22,8 +23,6 @@ export default function DashboardPage() {
                 const mappedMedsPromises = medsBundle.entry.map(
                     async (entry: BundleEntry) => {
                         const res = entry.resource as MedicationRequest
-
-                        // Extract RxNorm Code (if available) for later use
                         const coding =
                             res.medicationCodeableConcept?.coding?.find(
                                 (c: Coding) =>
@@ -67,22 +66,51 @@ export default function DashboardPage() {
     const checkForDuplicates = (medications: MappedMedicationRequest[]) => {
         const duplicates = findDuplicates(medications)
         if (duplicates.length > 0) {
-            // For now, just take the first duplicate group found
-            const firstGroup = duplicates[0]
-
-            setAlert({
-                title:
-                    firstGroup.type === 'Exact'
-                        ? 'Duplicate Medication Found'
-                        : 'Therapeutic Duplication Warning',
-                description:
-                    firstGroup.type === 'Exact'
-                        ? `Multiple prescriptions found for ${firstGroup.matchKey}.`
-                        : `Multiple active medications found in class: ${firstGroup.matchKey}. This may indicate redundant therapy.`,
-                medsInvolved: firstGroup.medications.map(m => m.name),
+            duplicates.forEach(duplicate => {
+                setAlerts(prevAlerts => [
+                    ...prevAlerts,
+                    {
+                        title:
+                            duplicate.type === 'Exact'
+                                ? 'Duplicate Medication Found'
+                                : 'Therapeutic Duplication Warning',
+                        description:
+                            duplicate.type === 'Exact'
+                                ? `Multiple prescriptions found for ${duplicate.matchKey}.`
+                                : `Multiple active medications found in class: ${duplicate.matchKey}. This may indicate redundant therapy.`,
+                        medsInvolved: duplicate.medications.map(m => ({
+                            name: m.name,
+                            id: m.id,
+                        })),
+                    },
+                ])
             })
         } else {
-            setAlert(null)
+            setAlerts([])
+        }
+    }
+
+    const discontinueMedication = async (medId: string) => {
+        if (!client) return
+        setProcessingId(medId)
+
+        try {
+            const resource = await client.request(`MedicationRequest/${medId}`)
+
+            resource.status = 'stopped'
+            resource.statusReason = {
+                text: 'Duplicate therapy discontinued via RxConcile',
+            }
+
+            await client.update(resource)
+            alert(`Success: Medication stopped.`)
+        } catch (err) {
+            console.error('Write-back failed', err)
+            alert(
+                'Simulated Write: Order would be discontinued (Sandbox permission restricted).',
+            )
+        } finally {
+            setProcessingId(null)
         }
     }
 
@@ -156,11 +184,17 @@ export default function DashboardPage() {
                     )}
                 </div>
 
-                {/* THE ALERT SECTION (Dynamically Rendered) */}
-                {/* THE ALERT SECTION (Dynamically Rendered) */}
-                <AlertSection alert={alert} />
+                {alerts &&
+                    alerts.length > 0 &&
+                    alerts.map((alert, idx) => (
+                        <AlertSection
+                            key={idx}
+                            alert={alert}
+                            processingId={processingId}
+                            onDiscontinue={discontinueMedication}
+                        />
+                    ))}
 
-                {/* 4. MEDICATION LIST TABLE */}
                 <MedicationList meds={meds} />
             </div>
         </div>

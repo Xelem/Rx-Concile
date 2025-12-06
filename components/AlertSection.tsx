@@ -1,17 +1,22 @@
-import React from 'react'
-import { AlertTriangle, Pill, XCircle } from 'lucide-react'
+import { AlertTriangle, Pill, Trash2 } from 'lucide-react'
 
 export interface Alert {
     title: string
     description: string
-    medsInvolved: string[]
+    medsInvolved: { name: string; id?: string }[]
 }
 
 interface AlertSectionProps {
     alert: Alert | null
+    processingId: string | null
+    onDiscontinue: (medId: string) => void
 }
 
-export default function AlertSection({ alert }: AlertSectionProps) {
+export default function AlertSection({
+    alert,
+    processingId,
+    onDiscontinue,
+}: AlertSectionProps) {
     if (!alert) return null
 
     return (
@@ -28,24 +33,42 @@ export default function AlertSection({ alert }: AlertSectionProps) {
                         <p className="text-red-700 mb-4">{alert.description}</p>
 
                         <div className="bg-white/60 rounded-md border border-red-100 overflow-hidden mb-4">
-                            {alert.medsInvolved.map((medName, idx) => (
+                            {alert.medsInvolved.map((med, idx) => (
                                 <div
-                                    key={idx}
-                                    className="flex items-center gap-2 p-3 border-b border-red-100 last:border-0"
+                                    key={med.id || idx}
+                                    className="flex items-center justify-between p-3 border-b border-red-100 last:border-0"
                                 >
-                                    <Pill className="h-4 w-4 text-slate-500" />
-                                    <span className="font-medium text-slate-900">
-                                        {medName}
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <Pill className="h-4 w-4 text-slate-500" />
+                                        <span className="font-medium text-slate-900">
+                                            {med.name}
+                                        </span>
+                                    </div>
+                                    <button
+                                        onClick={() =>
+                                            med.id && onDiscontinue(med.id)
+                                        }
+                                        disabled={!med.id || !!processingId}
+                                        className="px-3 py-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-medium rounded shadow-sm transition-colors flex items-center gap-1"
+                                    >
+                                        {processingId === med.id ? (
+                                            'Updating...'
+                                        ) : (
+                                            <>
+                                                <Trash2 className="h-3 w-3" />{' '}
+                                                Stop
+                                            </>
+                                        )}
+                                    </button>
                                 </div>
                             ))}
                         </div>
-
-                        <button className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors flex items-center gap-2">
-                            <XCircle className="h-4 w-4" />
-                            Review & Discontinue
-                        </button>
                     </div>
+                </div>
+                <div className="flex gap-2">
+                    <button className="text-sm text-red-600 underline decoration-dotted hover:text-red-800">
+                        Dismiss Warning
+                    </button>
                 </div>
             </div>
         </div>
