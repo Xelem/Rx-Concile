@@ -13,7 +13,8 @@ import AlertSection, { Alert } from '@/components/AlertSection'
 import AlertBox from '@/components/AlertBox'
 
 export default function DashboardPage() {
-    const { patient, medsBundle, error, loading, client } = useSmart()
+    const { patient, medsBundle, error, loading, client, refreshMeds } =
+        useSmart()
     const [meds, setMeds] = useState<MappedMedicationRequest[]>([])
     const [alerts, setAlerts] = useState<Alert[]>([])
     const [processingId, setProcessingId] = useState<string | null>(null)
@@ -121,22 +122,7 @@ export default function DashboardPage() {
 
             await client.update(resource)
             // Re-fetch meds to reflect the status change
-            // In a real app with a real FHIR server, we would re-fetch from the server.
-            // Here, we update the local bundle or just re-run the mapping logic
-            // which now filters out 'stopped' meds.
-            // Ideally, we should update the medsBundle in the context, but for now
-            // we'll manually update the local state by re-running fetchMeds
-            // which we've updated to filter out stopped meds.
-
-            // However, since we are just modifying the resource in place (if the client cache works that way)
-            // or we need to manually update our local view.
-            // Let's manually update the meds list to remove the discontinued one for immediate feedback.
-
-            setMeds(prevMeds => {
-                const updatedMeds = prevMeds.filter(m => m.id !== medId)
-                checkForDuplicates(updatedMeds)
-                return updatedMeds
-            })
+            await refreshMeds()
 
             setFeedbackAlert({
                 type: 'success',

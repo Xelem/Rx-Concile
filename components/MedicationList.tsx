@@ -3,6 +3,15 @@ import { FileText, Pill } from 'lucide-react'
 import { MedicationRequest } from 'fhir/r4'
 
 import { DrugClassification } from '@/lib/rxnav'
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from './ui/table'
 
 export interface MappedMedicationRequest
     extends Pick<MedicationRequest, 'id' | 'status'> {
@@ -38,54 +47,52 @@ export default function MedicationList({ meds }: MedicationListProps) {
                         sandbox.
                     </div>
                 ) : (
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 font-semibold">
-                                <th className="px-6 py-4 border-b border-slate-200">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                                <TableHead className="px-6 py-4 border-b border-slate-200 p-4">
                                     Medication
-                                </th>
-                                <th className="px-6 py-4 border-b border-slate-200">
+                                </TableHead>
+                                <TableHead className="px-6 py-4 border-b border-slate-200">
                                     Dosage
-                                </th>
-                                <th className="px-6 py-4 border-b border-slate-200">
+                                </TableHead>
+                                <TableHead className="px-6 py-4 border-b border-slate-200">
                                     Prescriber
-                                </th>
-                                <th className="px-6 py-4 border-b border-slate-200">
+                                </TableHead>
+                                <TableHead className="px-6 py-4 border-b border-slate-200">
                                     Date
-                                </th>
-                                <th className="px-6 py-4 border-b border-slate-200 text-right">
+                                </TableHead>
+                                <TableHead className="px-6 py-4 border-b border-slate-200 text-right">
                                     RxNorm
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
+                                </TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
                             {meds.map(med => (
-                                <tr
+                                <TableRow
                                     key={med.id}
                                     className="hover:bg-slate-50/80 transition-colors group"
                                 >
-                                    <td className="px-6 py-4 font-medium text-slate-900 flex items-center gap-3">
-                                        <div className="h-8 w-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-                                            <Pill className="h-4 w-4" />
-                                        </div>
+                                    <TableCell className="px-6 py-4 font-medium text-slate-900 flex items-center gap-3">
+                                        <Pill className="h-4 w-4" />
                                         {med.name}
-                                    </td>
-                                    <td className="px-6 py-4 text-slate-600 text-sm">
+                                    </TableCell>
+                                    <TableCell className="px-6 py-4 text-slate-600 text-sm">
                                         {med.dosage}
-                                    </td>
-                                    <td className="px-6 py-4 text-slate-600 text-sm">
+                                    </TableCell>
+                                    <TableCell className="px-6 py-4 text-slate-600 text-sm">
                                         {med.prescriber}
-                                    </td>
-                                    <td className="px-6 py-4 text-slate-500 text-sm font-mono">
+                                    </TableCell>
+                                    <TableCell className="px-6 py-4 text-slate-500 text-sm font-mono">
                                         {med.date}
-                                    </td>
-                                    <td className="px-6 py-4 text-right text-xs text-slate-400 font-mono">
+                                    </TableCell>
+                                    <TableCell className="px-6 py-4 text-right text-xs text-slate-400 font-mono text-right">
                                         {med.rxNormCode || 'N/A'}
-                                    </td>
-                                </tr>
+                                    </TableCell>
+                                </TableRow>
                             ))}
-                        </tbody>
-                    </table>
+                        </TableBody>
+                    </Table>
                 )}
             </div>
         </div>
