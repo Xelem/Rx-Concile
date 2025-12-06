@@ -178,11 +178,11 @@ export default function DashboardPage() {
         )
 
     return (
-        <div className="min-h-screen bg-slate-50 p-8">
+        <div className="min-h-screen bg-slate-50">
             <div className="mb-8">
                 <div className="bg-foreground text-white shadow-md">
                     {patient && (
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                        <div className="sm:px-6 lg:px-8 py-4">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div className="flex items-center gap-4">
                                     <div className="h-12 w-12 bg-white/10 rounded-full flex items-center justify-center border-2 border-slate-600">
@@ -213,40 +213,41 @@ export default function DashboardPage() {
                     )}
                 </div>
 
-                {feedbackAlert && (
-                    <div className="max-w-7xl mx-auto py-2">
-                        <AlertBox
-                            icon={
-                                feedbackAlert.type === 'success' ? (
-                                    <CheckCircle2Icon className="h-4 w-4" />
-                                ) : (
-                                    <AlertCircle className="h-4 w-4" />
-                                )
-                            }
-                            title={feedbackAlert.title}
-                            description={feedbackAlert.description}
-                            variant={
-                                feedbackAlert.type === 'error'
-                                    ? 'destructive'
-                                    : 'default'
-                            }
-                        />
-                    </div>
-                )}
+                <div className="p-8">
+                    {feedbackAlert && (
+                        <div className="max-w-7xl mx-auto py-2">
+                            <AlertBox
+                                icon={
+                                    feedbackAlert.type === 'success' ? (
+                                        <CheckCircle2Icon className="h-4 w-4" />
+                                    ) : (
+                                        <AlertCircle className="h-4 w-4" />
+                                    )
+                                }
+                                title={feedbackAlert.title}
+                                description={feedbackAlert.description}
+                                variant={
+                                    feedbackAlert.type === 'error'
+                                        ? 'destructive'
+                                        : 'default'
+                                }
+                            />
+                        </div>
+                    )}
 
-                {alerts &&
-                    alerts.length > 0 &&
-                    alerts.map((alert, idx) => (
-                        <AlertSection
-                            key={idx}
-                            alert={alert}
-                            processingId={processingId}
-                            onDiscontinue={discontinueMedication}
-                            onDismiss={() => setAlerts([])}
-                        />
-                    ))}
-
-                <MedicationList meds={meds} />
+                    {alerts &&
+                        alerts.length > 0 &&
+                        alerts.map((alert, idx) => (
+                            <AlertSection
+                                key={idx}
+                                alert={alert}
+                                processingId={processingId}
+                                onDiscontinue={discontinueMedication}
+                                onDismiss={() => setAlerts([])}
+                            />
+                        ))}
+                    <MedicationList meds={meds} />
+                </div>
             </div>
         </div>
     )

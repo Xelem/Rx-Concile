@@ -74,9 +74,10 @@ export class RxNavService {
     }
 
     private extractRelevantClasses(raw: RxNavApiSuccess): DrugClassItem[] {
-        const out: DrugClassItem[] = []
         const list = raw.rxclassDrugInfoList?.rxclassDrugInfo
-        if (!Array.isArray(list)) return out
+        if (!Array.isArray(list)) return []
+
+        const candidates: DrugClassItem[] = []
 
         for (const item of list) {
             const cls = item.rxclassMinConceptItem
@@ -84,6 +85,7 @@ export class RxNavService {
 
             const classTypeRaw = (cls.classType ?? '').toUpperCase()
             let source: DrugClassItem['source'] = 'OTHER'
+
             if (classTypeRaw.startsWith('ATC')) {
                 source = 'ATC'
             } else if (classTypeRaw === 'VA') {
@@ -92,8 +94,8 @@ export class RxNavService {
                 source = 'MOA'
             }
 
-            if (source === 'ATC') {
-                out.push({
+            if (source !== 'OTHER') {
+                candidates.push({
                     source,
                     classId: cls.classId,
                     className: cls.className,
@@ -102,14 +104,17 @@ export class RxNavService {
             }
         }
 
-        const unique = new Map<string, DrugClassItem>()
-        for (const c of out) {
-            const key = (c.classId ?? c.className).toLowerCase()
-            if (!unique.has(key)) unique.set(key, c)
-        }
+        // Priority: ATC > VA > MOA
+        const atc = candidates.find(c => c.source === 'ATC')
+        if (atc) return [atc]
 
-        console.log({ unique })
-        return Array.from(unique.values())
+        const va = candidates.find(c => c.source === 'VA')
+        if (va) return [va]
+
+        const moa = candidates.find(c => c.source === 'MOA')
+        if (moa) return [moa]
+
+        return []
     }
 
     public async getDrugClasses(
