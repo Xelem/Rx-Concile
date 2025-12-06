@@ -1,8 +1,8 @@
 'use client'
 
 import { useSmart } from './context/SmartContext'
-import { AlertCircle, RefreshCw } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { AlertCircle, CheckCircle2Icon, RefreshCw } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
 import { MedicationRequest, BundleEntry, Coding } from 'fhir/r4'
 import MedicationList, {
     MappedMedicationRequest,
@@ -10,58 +10,75 @@ import MedicationList, {
 import { RxNavService } from '@/lib/rxnav'
 import { findDuplicates } from '@/lib/medication-utils'
 import AlertSection, { Alert } from '@/components/AlertSection'
+import AlertBox from '@/components/AlertBox'
 
 export default function DashboardPage() {
     const { patient, medsBundle, error, loading, client } = useSmart()
     const [meds, setMeds] = useState<MappedMedicationRequest[]>([])
     const [alerts, setAlerts] = useState<Alert[]>([])
     const [processingId, setProcessingId] = useState<string | null>(null)
+    const [feedbackAlert, setFeedbackAlert] = useState<{
+        type: 'success' | 'error'
+        title: string
+        description: string
+    } | null>(null)
+
+    const fetchMeds = useCallback(async () => {
+        if (medsBundle?.entry) {
+            const mappedMedsPromises = medsBundle.entry.map(
+                async (entry: BundleEntry) => {
+                    const res = entry.resource as MedicationRequest
+                    const coding = res.medicationCodeableConcept?.coding?.find(
+                        (c: Coding) =>
+                            c.system ===
+                            'http://www.nlm.nih.gov/research/umls/rxnorm',
+                    )
+
+                    const rxNavService = RxNavService.getInstance()
+                    const drugClasses = await rxNavService.getDrugClasses([
+                        coding?.code || '',
+                    ])
+
+                    return {
+                        id: res.id,
+                        name:
+                            res.medicationCodeableConcept?.text ||
+                            coding?.display ||
+                            'Unknown Medication',
+                        prescriber:
+                            res.requester?.display || 'Unknown Provider',
+                        status: res.status,
+                        date: res.authoredOn?.split('T')[0] || 'N/A',
+                        dosage:
+                            res.dosageInstruction?.[0]?.text || 'As directed',
+                        rxNormCode: coding?.code,
+                        drugClasses: drugClasses,
+                    }
+                },
+            )
+
+            const mappedMeds = await Promise.all(mappedMedsPromises)
+            // Filter out stopped meds to simulate a fresh fetch that excludes them
+            const activeMeds = mappedMeds.filter(
+                m => m.status !== 'stopped' && m.status !== 'entered-in-error',
+            )
+            setMeds(activeMeds)
+            checkForDuplicates(activeMeds)
+        }
+    }, [medsBundle])
 
     useEffect(() => {
-        const fetchMeds = async () => {
-            if (medsBundle?.entry) {
-                const mappedMedsPromises = medsBundle.entry.map(
-                    async (entry: BundleEntry) => {
-                        const res = entry.resource as MedicationRequest
-                        const coding =
-                            res.medicationCodeableConcept?.coding?.find(
-                                (c: Coding) =>
-                                    c.system ===
-                                    'http://www.nlm.nih.gov/research/umls/rxnorm',
-                            )
-
-                        const rxNavService = RxNavService.getInstance()
-                        const drugClasses = await rxNavService.getDrugClasses([
-                            coding?.code || '',
-                        ])
-
-                        return {
-                            id: res.id,
-                            name:
-                                res.medicationCodeableConcept?.text ||
-                                coding?.display ||
-                                'Unknown Medication',
-                            prescriber:
-                                res.requester?.display || 'Unknown Provider',
-                            status: res.status,
-                            date: res.authoredOn?.split('T')[0] || 'N/A',
-                            dosage:
-                                res.dosageInstruction?.[0]?.text ||
-                                'As directed',
-                            rxNormCode: coding?.code,
-                            drugClasses: drugClasses,
-                        }
-                    },
-                )
-
-                const mappedMeds = await Promise.all(mappedMedsPromises)
-                setMeds(mappedMeds)
-                checkForDuplicates(mappedMeds)
-            }
-        }
-
         fetchMeds()
-    }, [medsBundle])
+    }, [fetchMeds])
+
+    useEffect(() => {
+        if (feedbackAlert) {
+            const timer = setTimeout(() => {
+                setFeedbackAlert(null)
+            }, 3000)
+            return () => clearTimeout(timer)
+        }
+    }, [feedbackAlert])
 
     const checkForDuplicates = (medications: MappedMedicationRequest[]) => {
         const duplicates = findDuplicates(medications)
@@ -103,12 +120,38 @@ export default function DashboardPage() {
             }
 
             await client.update(resource)
-            alert(`Success: Medication stopped.`)
+            // Re-fetch meds to reflect the status change
+            // In a real app with a real FHIR server, we would re-fetch from the server.
+            // Here, we update the local bundle or just re-run the mapping logic
+            // which now filters out 'stopped' meds.
+            // Ideally, we should update the medsBundle in the context, but for now
+            // we'll manually update the local state by re-running fetchMeds
+            // which we've updated to filter out stopped meds.
+
+            // However, since we are just modifying the resource in place (if the client cache works that way)
+            // or we need to manually update our local view.
+            // Let's manually update the meds list to remove the discontinued one for immediate feedback.
+
+            setMeds(prevMeds => {
+                const updatedMeds = prevMeds.filter(m => m.id !== medId)
+                checkForDuplicates(updatedMeds)
+                return updatedMeds
+            })
+
+            setFeedbackAlert({
+                type: 'success',
+                title: 'Success',
+                description: 'Medication stopped.',
+            })
         } catch (err) {
             console.error('Write-back failed', err)
-            alert(
-                'Simulated Write: Order would be discontinued (Sandbox permission restricted).',
-            )
+
+            setFeedbackAlert({
+                type: 'error',
+                title: 'Simulated Write',
+                description:
+                    'Order would be discontinued (Sandbox permission restricted).',
+            })
         } finally {
             setProcessingId(null)
         }
@@ -183,6 +226,27 @@ export default function DashboardPage() {
                         </div>
                     )}
                 </div>
+
+                {feedbackAlert && (
+                    <div className="max-w-7xl mx-auto py-2">
+                        <AlertBox
+                            icon={
+                                feedbackAlert.type === 'success' ? (
+                                    <CheckCircle2Icon className="h-4 w-4" />
+                                ) : (
+                                    <AlertCircle className="h-4 w-4" />
+                                )
+                            }
+                            title={feedbackAlert.title}
+                            description={feedbackAlert.description}
+                            variant={
+                                feedbackAlert.type === 'error'
+                                    ? 'destructive'
+                                    : 'default'
+                            }
+                        />
+                    </div>
+                )}
 
                 {alerts &&
                     alerts.length > 0 &&
