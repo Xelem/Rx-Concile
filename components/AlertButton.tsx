@@ -26,7 +26,7 @@ const AlertButton = ({
     return (
         <AlertDialog>
             <AlertDialogTrigger
-                className="flex items-center gap-2 bg-red-500 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded shadow-sm transition-colors flex items-center gap-1 px-3 py-1"
+                className="bg-red-500 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded shadow-sm transition-colors flex items-center gap-1 px-3 py-1"
                 disabled={disabled}
             >
                 <Trash2 className="h-3 w-3" /> {text}

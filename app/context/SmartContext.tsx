@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { Bundle, MedicationRequest, Patient } from 'fhir/r4'
+import { Bundle, MedicationRequest, Patient, Condition } from 'fhir/r4'
 import FHIR from 'fhirclient'
 import Client from 'fhirclient/lib/Client'
 
@@ -11,6 +11,7 @@ interface SmartContextType {
     medsBundle: Bundle<MedicationRequest> | null
     error: string | null
     loading: boolean
+    conditionBundle: Bundle<Condition> | null
     refreshMeds: () => Promise<void>
 }
 
@@ -21,6 +22,8 @@ export function SmartProvider({ children }: { children: React.ReactNode }) {
     const [patient, setPatient] = useState<Patient | null>(null)
     const [medsBundle, setMedsBundle] =
         useState<Bundle<MedicationRequest> | null>(null)
+    const [conditionBundle, setConditionBundle] =
+        useState<Bundle<Condition> | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
 
@@ -37,7 +40,13 @@ export function SmartProvider({ children }: { children: React.ReactNode }) {
                     await fhirClient.request(
                         `MedicationRequest?patient=${patientData.id}&status=active`,
                     )
+                const conditionBundle: Bundle<Condition> =
+                    await fhirClient.request(
+                        `Condition?patient=${patientData.id}`,
+                    )
+
                 setMedsBundle(medsBundle)
+                setConditionBundle(conditionBundle)
             } catch (err: any) {
                 console.error(err)
                 setError(err.message || 'Failed to initialize SMART session.')
@@ -67,7 +76,15 @@ export function SmartProvider({ children }: { children: React.ReactNode }) {
 
     return (
         <SmartContext.Provider
-            value={{ client, patient, medsBundle, error, loading, refreshMeds }}
+            value={{
+                client,
+                patient,
+                medsBundle,
+                error,
+                loading,
+                refreshMeds,
+                conditionBundle,
+            }}
         >
             {children}
         </SmartContext.Provider>

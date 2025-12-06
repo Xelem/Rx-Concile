@@ -1,7 +1,13 @@
 'use client'
 
 import { useSmart } from './context/SmartContext'
-import { AlertCircle, CheckCircle2Icon, RefreshCw } from 'lucide-react'
+import {
+    AlertCircle,
+    CheckCircle2Icon,
+    ClipboardList,
+    PlusCircle,
+    Stethoscope,
+} from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { MedicationRequest, BundleEntry, Coding } from 'fhir/r4'
 import MedicationList, {
@@ -11,11 +17,27 @@ import { RxNavService } from '@/lib/rxnav'
 import { findDuplicates } from '@/lib/medication-utils'
 import AlertSection, { Alert } from '@/components/AlertSection'
 import AlertBox from '@/components/AlertBox'
+import Error from '@/components/Error'
+import returnMappedConditions, { ConditionI } from '@/lib/condition-utils'
+import { Button } from '@/components/ui/button'
+import ConditionList from '@/components/ConditionList'
 
 export default function DashboardPage() {
-    const { patient, medsBundle, error, loading, client, refreshMeds } =
-        useSmart()
+    const {
+        patient,
+        medsBundle,
+        error,
+        loading,
+        client,
+        refreshMeds,
+        conditionBundle,
+    } = useSmart()
+
+    // Data States
     const [meds, setMeds] = useState<MappedMedicationRequest[]>([])
+    const [conditions, setConditions] = useState<ConditionI[]>([])
+
+    // UI States
     const [alerts, setAlerts] = useState<Alert[]>([])
     const [processingId, setProcessingId] = useState<string | null>(null)
     const [feedbackAlert, setFeedbackAlert] = useState<{
@@ -23,6 +45,7 @@ export default function DashboardPage() {
         title: string
         description: string
     } | null>(null)
+    const [activeView, setActiveView] = useState<'meds' | 'conditions'>('meds')
 
     const fetchMeds = useCallback(async () => {
         if (medsBundle?.entry) {
@@ -59,7 +82,6 @@ export default function DashboardPage() {
             )
 
             const mappedMeds = await Promise.all(mappedMedsPromises)
-            // Filter out stopped meds to simulate a fresh fetch that excludes them
             const activeMeds = mappedMeds.filter(
                 m => m.status !== 'stopped' && m.status !== 'entered-in-error',
             )
@@ -73,6 +95,11 @@ export default function DashboardPage() {
     }, [fetchMeds])
 
     useEffect(() => {
+        if (conditionBundle)
+            setConditions(returnMappedConditions(conditionBundle))
+    }, [conditionBundle])
+
+    useEffect(() => {
         if (feedbackAlert) {
             const timer = setTimeout(() => {
                 setFeedbackAlert(null)
@@ -83,6 +110,7 @@ export default function DashboardPage() {
 
     const checkForDuplicates = (medications: MappedMedicationRequest[]) => {
         const duplicates = findDuplicates(medications)
+        console.log({ duplicates })
         if (duplicates.length > 0) {
             duplicates.forEach(duplicate => {
                 setAlerts(prevAlerts => [
@@ -94,7 +122,7 @@ export default function DashboardPage() {
                                 : 'Therapeutic Duplication Warning',
                         description:
                             duplicate.type === 'Exact'
-                                ? `Multiple prescriptions found for ${duplicate.matchKey}.`
+                                ? `Patient is prescribed multiple medications from the class ${duplicate.matchKey}.`
                                 : `Multiple active medications found in class: ${duplicate.matchKey}. This may indicate redundant therapy.`,
                         medsInvolved: duplicate.medications.map(m => ({
                             name: m.name,
@@ -158,22 +186,7 @@ export default function DashboardPage() {
     if (error)
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-                <div className="max-w-md w-full bg-white rounded-xl shadow-lg border border-slate-200 p-8 text-center">
-                    <div className="h-16 w-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <AlertCircle className="h-8 w-8 text-red-600" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-slate-800 mb-2">
-                        Connection Error
-                    </h2>
-                    <p className="text-slate-500 mb-8">{error}</p>
-                    <a
-                        href="/launch"
-                        className="inline-flex items-center justify-center gap-2 w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200"
-                    >
-                        <RefreshCw className="h-5 w-5" />
-                        Relaunch App
-                    </a>
-                </div>
+                <Error error={error} />
             </div>
         )
 
@@ -208,46 +221,81 @@ export default function DashboardPage() {
                                         </p>
                                     </div>
                                 </div>
+
+                                <div className="flex gap-3">
+                                    <Button
+                                        onClick={() =>
+                                            setActiveView(
+                                                activeView === 'meds'
+                                                    ? 'conditions'
+                                                    : 'meds',
+                                            )
+                                        }
+                                        className="bg-slate-800 border-slate-700 hover:bg-slate-700 text-slate-300"
+                                    >
+                                        <ClipboardList className="h-4 w-4" />
+                                        {activeView === 'meds'
+                                            ? 'View Conditions'
+                                            : 'View Meds'}
+                                    </Button>
+                                    <Button
+                                        onClick={() =>
+                                            window.alert(
+                                                'Feature coming in next step: Modal form to add medications.',
+                                            )
+                                        }
+                                        className=" bg-blue-600 hover:bg-blue-500"
+                                    >
+                                        <PlusCircle className="h-4 w-4" />
+                                        Add Medication
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     )}
                 </div>
 
-                <div className="p-8">
-                    {feedbackAlert && (
-                        <div className="max-w-7xl mx-auto py-2">
-                            <AlertBox
-                                icon={
-                                    feedbackAlert.type === 'success' ? (
-                                        <CheckCircle2Icon className="h-4 w-4" />
-                                    ) : (
-                                        <AlertCircle className="h-4 w-4" />
-                                    )
-                                }
-                                title={feedbackAlert.title}
-                                description={feedbackAlert.description}
-                                variant={
-                                    feedbackAlert.type === 'error'
-                                        ? 'destructive'
-                                        : 'default'
-                                }
-                            />
-                        </div>
-                    )}
+                {activeView === 'meds' ? (
+                    <div className="p-8">
+                        {feedbackAlert && (
+                            <div className="max-w-7xl mx-auto py-2">
+                                <AlertBox
+                                    icon={
+                                        feedbackAlert.type === 'success' ? (
+                                            <CheckCircle2Icon className="h-4 w-4" />
+                                        ) : (
+                                            <AlertCircle className="h-4 w-4" />
+                                        )
+                                    }
+                                    title={feedbackAlert.title}
+                                    description={feedbackAlert.description}
+                                    variant={
+                                        feedbackAlert.type === 'error'
+                                            ? 'destructive'
+                                            : 'default'
+                                    }
+                                />
+                            </div>
+                        )}
 
-                    {alerts &&
-                        alerts.length > 0 &&
-                        alerts.map((alert, idx) => (
-                            <AlertSection
-                                key={idx}
-                                alert={alert}
-                                processingId={processingId}
-                                onDiscontinue={discontinueMedication}
-                                onDismiss={() => setAlerts([])}
-                            />
-                        ))}
-                    <MedicationList meds={meds} />
-                </div>
+                        {alerts &&
+                            alerts.length > 0 &&
+                            alerts.map((alert, idx) => (
+                                <AlertSection
+                                    key={idx}
+                                    alert={alert}
+                                    processingId={processingId}
+                                    onDiscontinue={discontinueMedication}
+                                    onDismiss={() => setAlerts([])}
+                                />
+                            ))}
+                        <MedicationList meds={meds} />
+                    </div>
+                ) : (
+                    <div className="p-8">
+                        <ConditionList conditions={conditions} />
+                    </div>
+                )}
             </div>
         </div>
     )

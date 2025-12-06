@@ -29,7 +29,7 @@ interface MedicationListProps {
 
 export default function MedicationList({ meds }: MedicationListProps) {
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mt-8">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                 <h3 className="text-lg font-bold flex items-center gap-2 uppercase">
                     <FileText className="h-5 w-5" />
