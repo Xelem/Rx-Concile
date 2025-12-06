@@ -180,12 +180,12 @@ export default function DashboardPage() {
     return (
         <div className="min-h-screen bg-slate-50 p-8">
             <div className="mb-8">
-                <div className="bg-slate-900 text-white shadow-md">
+                <div className="bg-foreground text-white shadow-md">
                     {patient && (
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div className="flex items-center gap-4">
-                                    <div className="h-12 w-12 bg-slate-700 rounded-full flex items-center justify-center border-2 border-slate-600">
+                                    <div className="h-12 w-12 bg-white/10 rounded-full flex items-center justify-center border-2 border-slate-600">
                                         <span className="text-xl font-bold">
                                             {
                                                 patient?.name?.[0]
