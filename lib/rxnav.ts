@@ -92,7 +92,7 @@ export class RxNavService {
                 source = 'MOA'
             }
 
-            if (source !== 'OTHER') {
+            if (source === 'ATC') {
                 out.push({
                     source,
                     classId: cls.classId,
@@ -108,6 +108,7 @@ export class RxNavService {
             if (!unique.has(key)) unique.set(key, c)
         }
 
+        console.log({ unique })
         return Array.from(unique.values())
     }
 

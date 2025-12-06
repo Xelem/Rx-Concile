@@ -1,4 +1,5 @@
 import { AlertTriangle, Pill, Trash2 } from 'lucide-react'
+import AlertButton from './AlertButton'
 
 export interface Alert {
     title: string
@@ -44,22 +45,17 @@ export default function AlertSection({
                                             {med.name}
                                         </span>
                                     </div>
-                                    <button
+                                    <AlertButton
                                         onClick={() =>
                                             med.id && onDiscontinue(med.id)
                                         }
                                         disabled={!med.id || !!processingId}
-                                        className="px-3 py-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-medium rounded shadow-sm transition-colors flex items-center gap-1"
-                                    >
-                                        {processingId === med.id ? (
-                                            'Updating...'
-                                        ) : (
-                                            <>
-                                                <Trash2 className="h-3 w-3" />{' '}
-                                                Stop
-                                            </>
-                                        )}
-                                    </button>
+                                        text={
+                                            processingId === med.id
+                                                ? 'Updating...'
+                                                : 'Stop'
+                                        }
+                                    />
                                 </div>
                             ))}
                         </div>
