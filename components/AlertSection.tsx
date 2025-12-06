@@ -11,12 +11,14 @@ interface AlertSectionProps {
     alert: Alert | null
     processingId: string | null
     onDiscontinue: (medId: string) => void
+    onDismiss: () => void
 }
 
 export default function AlertSection({
     alert,
     processingId,
     onDiscontinue,
+    onDismiss,
 }: AlertSectionProps) {
     if (!alert) return null
 
@@ -62,7 +64,10 @@ export default function AlertSection({
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <button className="text-sm text-red-600 underline decoration-dotted hover:text-red-800">
+                    <button
+                        className="text-sm text-red-600 underline decoration-dotted hover:text-red-800"
+                        onClick={onDismiss}
+                    >
                         Dismiss Warning
                     </button>
                 </div>

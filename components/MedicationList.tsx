@@ -31,38 +31,38 @@ export default function MedicationList({ meds }: MedicationListProps) {
     return (
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mt-8">
             <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-slate-400" />
+                <h3 className="text-lg font-bold flex items-center gap-2 uppercase">
+                    <FileText className="h-5 w-5" />
                     Active Medications
                 </h3>
-                <span className="text-sm text-slate-500 bg-white px-2 py-1 rounded border border-slate-200">
+                <span className="text-sm bg-white px-2 py-1 rounded border border-slate-200">
                     Source: EHR (FHIR R4)
                 </span>
             </div>
 
             <div className="overflow-x-auto">
                 {meds.length === 0 ? (
-                    <div className="p-10 text-center text-slate-500">
+                    <div className="p-10 text-center">
                         No active medications found for this patient in the
                         sandbox.
                     </div>
                 ) : (
                     <Table>
                         <TableHeader>
-                            <TableRow className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 font-semibold">
-                                <TableHead className="px-6 py-4 border-b border-slate-200 p-4">
+                            <TableRow className="bg-foreground text-xs uppercase tracking-wider font-semibold hover:bg-foreground">
+                                <TableHead className="text-white p-6 border-b border-slate-200">
                                     Medication
                                 </TableHead>
-                                <TableHead className="px-6 py-4 border-b border-slate-200">
+                                <TableHead className="text-white p-6 border-b border-slate-200">
                                     Dosage
                                 </TableHead>
-                                <TableHead className="px-6 py-4 border-b border-slate-200">
+                                <TableHead className="text-white p-6 border-b border-slate-200">
                                     Prescriber
                                 </TableHead>
-                                <TableHead className="px-6 py-4 border-b border-slate-200">
+                                <TableHead className="text-white p-6 border-b border-slate-200">
                                     Date
                                 </TableHead>
-                                <TableHead className="px-6 py-4 border-b border-slate-200 text-right">
+                                <TableHead className="text-white p-6 border-b border-slate-200 text-right">
                                     RxNorm
                                 </TableHead>
                             </TableRow>
@@ -77,16 +77,16 @@ export default function MedicationList({ meds }: MedicationListProps) {
                                         <Pill className="h-4 w-4" />
                                         {med.name}
                                     </TableCell>
-                                    <TableCell className="px-6 py-4 text-slate-600 text-sm">
+                                    <TableCell className="px-6 py-4 text-sm">
                                         {med.dosage}
                                     </TableCell>
-                                    <TableCell className="px-6 py-4 text-slate-600 text-sm">
+                                    <TableCell className="px-6 py-4 text-sm">
                                         {med.prescriber}
                                     </TableCell>
-                                    <TableCell className="px-6 py-4 text-slate-500 text-sm font-mono">
+                                    <TableCell className="px-6 py-4 text-sm font-mono">
                                         {med.date}
                                     </TableCell>
-                                    <TableCell className="px-6 py-4 text-right text-xs text-slate-400 font-mono text-right">
+                                    <TableCell className="px-6 py-4 text-xs font-mono text-right">
                                         {med.rxNormCode || 'N/A'}
                                     </TableCell>
                                 </TableRow>

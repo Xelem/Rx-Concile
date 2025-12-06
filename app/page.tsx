@@ -242,6 +242,7 @@ export default function DashboardPage() {
                             alert={alert}
                             processingId={processingId}
                             onDiscontinue={discontinueMedication}
+                            onDismiss={() => setAlerts([])}
                         />
                     ))}
 
