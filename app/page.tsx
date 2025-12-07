@@ -65,8 +65,6 @@ export default function DashboardPage() {
         conditionBundle,
     } = useSmart()
 
-    console.log({ client })
-
     // Data States
     const [meds, setMeds] = useState<MappedMedicationRequest[]>([])
     const [conditions, setConditions] = useState<ConditionI[]>([])
@@ -77,6 +75,9 @@ export default function DashboardPage() {
 
     // UI States
     const [alerts, setAlerts] = useState<Alert[]>([])
+    const [dismissedAlertIds, setDismissedAlertIds] = useState<Set<string>>(
+        new Set(),
+    )
     const [processingId, setProcessingId] = useState<string | null>(null)
     const [feedbackAlert, setFeedbackAlert] = useState<{
         type: 'success' | 'error'
@@ -148,12 +149,14 @@ export default function DashboardPage() {
 
     const checkForDuplicates = (medications: MappedMedicationRequest[]) => {
         const duplicates = findDuplicates(medications)
-        console.log({ duplicates })
+        const newAlerts: Alert[] = []
+
         if (duplicates.length > 0) {
             duplicates.forEach(duplicate => {
-                setAlerts(prevAlerts => [
-                    ...prevAlerts,
-                    {
+                const alertId = duplicate.matchKey
+                if (!dismissedAlertIds.has(alertId)) {
+                    newAlerts.push({
+                        id: alertId,
                         title:
                             duplicate.type === 'Exact'
                                 ? 'Duplicate Medication Found'
@@ -166,12 +169,11 @@ export default function DashboardPage() {
                             name: m.name,
                             id: m.id,
                         })),
-                    },
-                ])
+                    })
+                }
             })
-        } else {
-            setAlerts([])
         }
+        setAlerts(newAlerts)
     }
 
     const discontinueMedication = async (medId: string) => {
@@ -486,7 +488,16 @@ export default function DashboardPage() {
                                     alert={alert}
                                     processingId={processingId}
                                     onDiscontinue={discontinueMedication}
-                                    onDismiss={() => setAlerts([])}
+                                    onDismiss={() => {
+                                        setDismissedAlertIds(prev => {
+                                            const next = new Set(prev)
+                                            next.add(alert.id)
+                                            return next
+                                        })
+                                        setAlerts(prev =>
+                                            prev.filter(a => a.id !== alert.id),
+                                        )
+                                    }}
                                 />
                             ))}
                         <MedicationList meds={meds} />

@@ -19,12 +19,12 @@ export function findDuplicates(
         }
     })
 
-    rxNormMap.forEach((group, code) => {
+    rxNormMap.forEach(group => {
         if (group.length > 1) {
             duplicates.push({
                 type: 'Exact',
                 medications: group,
-                matchKey: code,
+                matchKey: group[0].drugClasses?.[0].classes[0].className || '',
             })
         }
     })

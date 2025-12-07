@@ -1,7 +1,8 @@
-import { AlertTriangle, Pill, Trash2 } from 'lucide-react'
+import { AlertTriangle, Pill } from 'lucide-react'
 import AlertButton from './AlertButton'
 
 export interface Alert {
+    id: string
     title: string
     description: string
     medsInvolved: { name: string; id?: string }[]
