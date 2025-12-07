@@ -1,0 +1,36 @@
+[
+    { "name": "Ibuprofen 600mg", "code": "197806", "class": "NSAID" },
+    { "name": "Aspirin 81mg", "code": "243670", "class": "NSAID" },
+    { "name": "Lisinopril 10mg", "code": "314076", "class": "ACE Inhibitor" },
+    {
+        "name": "Furosemide 40mg Oral Tablet",
+        "code": "313988",
+        "class": "Loop Diuretic"
+    },
+    { "name": "Artovastatin 10mg", "code": "83367", "class": "Statin" },
+    {
+        "name": "Acetaminophen 325 mg oral tablet",
+        "code": "313782",
+        "class": "NSAID"
+    },
+    {
+        "name": "Amoxicillin 250 MG / Clavulanate 125 MG Oral Tablet",
+        "code": "562251",
+        "class": "Antibiotic"
+    },
+    {
+        "name": "Naproxen sodium 220 MG Oral Tablet",
+        "code": "849574",
+        "class": "NSAID"
+    },
+    {
+        "name": "diphenhydrAMINE Hydrochloride 25 MG Oral Tablet",
+        "code": "1049630",
+        "class": "Antihistamine"
+    },
+    {
+        "name": "Hydrochlorothiazide 25 MG",
+        "code": "316049",
+        "class": "Thiazide Diuretic"
+    }
+]

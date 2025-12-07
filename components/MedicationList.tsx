@@ -6,7 +6,6 @@ import { DrugClassification } from '@/lib/rxnav'
 import {
     Table,
     TableBody,
-    TableCaption,
     TableCell,
     TableHead,
     TableHeader,
@@ -76,7 +75,7 @@ export default function MedicationList({ meds }: MedicationListProps) {
                                     <TableCell className="px-3 py-4 md:px-6 font-medium text-slate-900 align-top">
                                         <div className="flex items-start gap-2">
                                             <Pill className="h-4 w-4 mt-1 shrink-0" />
-                                            <span className="whitespace-normal break-words">
+                                            <span className="whitespace-normal wrap-break-words">
                                                 {med.name}
                                             </span>
                                         </div>

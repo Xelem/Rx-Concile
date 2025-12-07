@@ -54,7 +54,7 @@ export default function ConditionList({ conditions }: ConditionListProps) {
                                     className="hover:bg-slate-50/80 transition-colors group"
                                 >
                                     <TableCell className="px-3 py-4 md:px-6 font-medium text-slate-900 align-top">
-                                        <span className="whitespace-normal break-words">
+                                        <span className="whitespace-normal wrap-break-words">
                                             {cond.name}
                                         </span>
                                     </TableCell>

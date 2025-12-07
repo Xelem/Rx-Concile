@@ -40,19 +40,7 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-
-// Preset list of drugs to ensure valid RxNorm codes for the demo
-const PRESET_DRUGS = [
-    { name: 'Ibuprofen 600mg', code: '197806', class: 'NSAID' },
-    { name: 'Aspirin 81mg', code: '243670', class: 'NSAID' },
-    { name: 'Lisinopril 10mg', code: '314076', class: 'ACE Inhibitor' },
-    {
-        name: 'Furosemide 40mg Oral Tablet',
-        code: '313988',
-        class: 'Loop Diuretic',
-    },
-    { name: 'Artovastatin 10mg', code: '83367', class: 'Statin' },
-]
+import PRESET_DRUGS from '@/lib/preset-drugs.json'
 
 export default function DashboardPage() {
     const {
