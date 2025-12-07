@@ -41,6 +41,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import PRESET_DRUGS from '@/lib/preset-drugs.json'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 export default function DashboardPage() {
     const {
@@ -290,15 +291,16 @@ export default function DashboardPage() {
                         <div className="sm:px-6 lg:px-8 py-4">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4">
                                 <div className="flex items-center gap-4">
-                                    <div className="h-12 w-12 bg-white/10 rounded-full flex items-center justify-center border-2 border-slate-600">
-                                        <span className="text-xl font-bold">
+                                    <Avatar className=" bg-white/10">
+                                        <AvatarFallback className=" bg-white/10 border-2 border-slate-600">
+                                            {' '}
                                             {
                                                 patient?.name?.[0]
                                                     ?.given?.[0]?.[0]
                                             }
                                             {patient?.name?.[0]?.family?.[0]}
-                                        </span>
-                                    </div>
+                                        </AvatarFallback>
+                                    </Avatar>
                                     <div>
                                         <h2 className="text-xl font-bold leading-tight">
                                             {patient?.name?.[0]?.given?.join(
