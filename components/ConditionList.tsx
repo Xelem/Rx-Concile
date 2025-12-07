@@ -36,13 +36,13 @@ export default function ConditionList({ conditions }: ConditionListProps) {
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-foreground text-xs uppercase tracking-wider font-semibold hover:bg-foreground">
-                                <TableHead className="text-white p-6 border-b border-slate-200">
+                                <TableHead className="text-white px-3 py-4 md:p-6 border-b border-slate-200 w-[50%] md:w-auto">
                                     Condition Name
                                 </TableHead>
-                                <TableHead className="text-white p-6 border-b border-slate-200">
+                                <TableHead className="text-white px-3 py-4 md:p-6 border-b border-slate-200">
                                     Status
                                 </TableHead>
-                                <TableHead className="text-white p-6 border-b border-slate-200 text-right">
+                                <TableHead className="text-white px-3 py-4 md:p-6 border-b border-slate-200 text-right whitespace-nowrap">
                                     Recorded Date
                                 </TableHead>
                             </TableRow>
@@ -53,15 +53,17 @@ export default function ConditionList({ conditions }: ConditionListProps) {
                                     key={cond.id}
                                     className="hover:bg-slate-50/80 transition-colors group"
                                 >
-                                    <TableCell className="px-6 py-4 font-medium text-slate-900">
-                                        {cond.name}
+                                    <TableCell className="px-3 py-4 md:px-6 font-medium text-slate-900 align-top">
+                                        <span className="whitespace-normal break-words">
+                                            {cond.name}
+                                        </span>
                                     </TableCell>
-                                    <TableCell className="px-6 py-4">
+                                    <TableCell className="px-3 py-4 md:px-6 align-top">
                                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 capitalize">
                                             {cond.status}
                                         </span>
                                     </TableCell>
-                                    <TableCell className="px-6 py-4 text-slate-500 text-sm font-mono text-right">
+                                    <TableCell className="px-3 py-4 md:px-6 text-slate-500 text-sm font-mono text-right align-top whitespace-nowrap">
                                         {cond.date}
                                     </TableCell>
                                 </TableRow>

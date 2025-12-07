@@ -50,19 +50,19 @@ export default function MedicationList({ meds }: MedicationListProps) {
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-foreground text-xs uppercase tracking-wider font-semibold hover:bg-foreground">
-                                <TableHead className="text-white p-6 border-b border-slate-200">
+                                <TableHead className="text-white px-3 py-4 md:p-6 border-b border-slate-200 w-[40%] md:w-auto">
                                     Medication
                                 </TableHead>
-                                <TableHead className="text-white p-6 border-b border-slate-200">
+                                <TableHead className="text-white px-3 py-4 md:p-6 border-b border-slate-200">
                                     Dosage
                                 </TableHead>
-                                <TableHead className="text-white p-6 border-b border-slate-200">
+                                <TableHead className="text-white px-3 py-4 md:p-6 border-b border-slate-200 hidden md:table-cell">
                                     Prescriber
                                 </TableHead>
-                                <TableHead className="text-white p-6 border-b border-slate-200">
+                                <TableHead className="text-white px-3 py-4 md:p-6 border-b border-slate-200 whitespace-nowrap">
                                     Date
                                 </TableHead>
-                                <TableHead className="text-white p-6 border-b border-slate-200 text-right">
+                                <TableHead className="text-white px-3 py-4 md:p-6 border-b border-slate-200 text-right hidden sm:table-cell">
                                     RxNorm
                                 </TableHead>
                             </TableRow>
@@ -73,20 +73,24 @@ export default function MedicationList({ meds }: MedicationListProps) {
                                     key={med.id}
                                     className="hover:bg-slate-50/80 transition-colors group"
                                 >
-                                    <TableCell className="px-6 py-4 font-medium text-slate-900 flex items-center gap-3">
-                                        <Pill className="h-4 w-4" />
-                                        {med.name}
+                                    <TableCell className="px-3 py-4 md:px-6 font-medium text-slate-900 align-top">
+                                        <div className="flex items-start gap-2">
+                                            <Pill className="h-4 w-4 mt-1 shrink-0" />
+                                            <span className="whitespace-normal break-words">
+                                                {med.name}
+                                            </span>
+                                        </div>
                                     </TableCell>
-                                    <TableCell className="px-6 py-4 text-sm">
+                                    <TableCell className="px-3 py-4 md:px-6 text-sm align-top whitespace-normal">
                                         {med.dosage}
                                     </TableCell>
-                                    <TableCell className="px-6 py-4 text-sm">
+                                    <TableCell className="px-3 py-4 md:px-6 text-sm align-top hidden md:table-cell">
                                         {med.prescriber}
                                     </TableCell>
-                                    <TableCell className="px-6 py-4 text-sm font-mono">
+                                    <TableCell className="px-3 py-4 md:px-6 text-sm font-mono align-top whitespace-nowrap">
                                         {med.date}
                                     </TableCell>
-                                    <TableCell className="px-6 py-4 text-xs font-mono text-right">
+                                    <TableCell className="px-3 py-4 md:px-6 text-xs font-mono text-right align-top hidden sm:table-cell">
                                         {med.rxNormCode || 'N/A'}
                                     </TableCell>
                                 </TableRow>

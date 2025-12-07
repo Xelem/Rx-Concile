@@ -294,7 +294,7 @@ export default function DashboardPage() {
                 <div className="bg-foreground text-white shadow-md">
                     {patient && (
                         <div className="sm:px-6 lg:px-8 py-4">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4">
                                 <div className="flex items-center gap-4">
                                     <div className="h-12 w-12 bg-white/10 rounded-full flex items-center justify-center border-2 border-slate-600">
                                         <span className="text-xl font-bold">
