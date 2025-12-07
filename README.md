@@ -5,6 +5,12 @@
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Status](https://img.shields.io/badge/status-Active-success.svg)
 
+## 🌐 Live Demo
+
+Try out the application connected to a public EHR sandbox: **[Launch Demo](https://bit.ly/rxconcile)**
+
+> **Note**: For the best experience, please select one of the **first 2 patients** in the sandbox to see the conflict detection in action.
+
 ## 🚀 Key Features
 
 -   **SMART on FHIR Integration**: Seamlessly authenticates and retrieves patient data (Demographics, Medications, Conditions) from FHIR-compliant EHRs (tested with Logica/Meld Sandbox).

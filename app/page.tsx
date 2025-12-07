@@ -76,7 +76,6 @@ export default function DashboardPage() {
     } | null>(null)
     const [activeView, setActiveView] = useState<'meds' | 'conditions'>('meds')
 
-    console.log({ client })
     const fetchMeds = useCallback(async () => {
         if (medsBundle?.entry) {
             const mappedMedsPromises = medsBundle.entry.map(
