@@ -41,8 +41,8 @@ Before running the application, ensure you have the following:
 1.  **Clone the repository**
 
     ```bash
-    git clone https://github.com/yourusername/rx-concile.git
-    cd rx-concile
+    git clone https://github.com/Xelem/Rx-Concile.git
+    cd Rx-Concile
     ```
 
 2.  **Install dependencies**
@@ -54,6 +54,7 @@ Before running the application, ensure you have the following:
 3.  **Configure Environment Variables**
     Create a `.env.local` file in the root directory and add your SMART Client ID:
     ```env
+    NEXT_PUBLIC_BASE_URL=http://localhost:3000
     NEXT_PUBLIC_MELD_CLIENT_ID=your_client_id_here
     ```
 
