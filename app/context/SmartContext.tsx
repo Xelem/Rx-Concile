@@ -1,7 +1,14 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { Bundle, MedicationRequest, Patient, Condition } from 'fhir/r4'
+import {
+    Bundle,
+    MedicationRequest,
+    Patient,
+    Condition,
+    Practitioner,
+    RelatedPerson,
+} from 'fhir/r4'
 import FHIR from 'fhirclient'
 import Client from 'fhirclient/lib/Client'
 
@@ -12,6 +19,7 @@ interface SmartContextType {
     error: string | null
     loading: boolean
     conditionBundle: Bundle<Condition> | null
+    user: Practitioner | Patient | RelatedPerson | null
     refreshMeds: () => Promise<void>
 }
 
@@ -24,6 +32,9 @@ export function SmartProvider({ children }: { children: React.ReactNode }) {
         useState<Bundle<MedicationRequest> | null>(null)
     const [conditionBundle, setConditionBundle] =
         useState<Bundle<Condition> | null>(null)
+    const [user, setUser] = useState<
+        Practitioner | Patient | RelatedPerson | null
+    >(null)
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
 
@@ -35,6 +46,9 @@ export function SmartProvider({ children }: { children: React.ReactNode }) {
 
                 const patientData = await fhirClient.patient.read()
                 setPatient(patientData)
+
+                const userData = await fhirClient.user.read()
+                setUser(userData as any)
 
                 const medsBundle: Bundle<MedicationRequest> =
                     await fhirClient.request(
@@ -84,6 +98,7 @@ export function SmartProvider({ children }: { children: React.ReactNode }) {
                 loading,
                 refreshMeds,
                 conditionBundle,
+                user,
             }}
         >
             {children}

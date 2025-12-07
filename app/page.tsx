@@ -51,6 +51,7 @@ export default function DashboardPage() {
         client,
         refreshMeds,
         conditionBundle,
+        user,
     } = useSmart()
 
     // Data States
@@ -74,6 +75,7 @@ export default function DashboardPage() {
     } | null>(null)
     const [activeView, setActiveView] = useState<'meds' | 'conditions'>('meds')
 
+    console.log({ client })
     const fetchMeds = useCallback(async () => {
         if (medsBundle?.entry) {
             const mappedMedsPromises = medsBundle.entry.map(
@@ -224,7 +226,11 @@ export default function DashboardPage() {
             },
             requester: {
                 reference: client.user.fhirUser,
-                display: 'Pharm. Anselm (RxConcile)',
+                display: user
+                    ? `${user.name?.[0]?.given?.join(' ') || ''} ${
+                          user.name?.[0]?.family || ''
+                      }`.trim() || 'Unknown Provider'
+                    : 'Unknown Provider',
             },
             authoredOn: new Date().toISOString().split('T')[0],
             dosageInstruction: [
