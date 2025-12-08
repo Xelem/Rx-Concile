@@ -11,6 +11,8 @@ Try out the application connected to a public EHR sandbox: **[Launch Demo](https
 
 > **Note**: For the best experience, please select one of the **first 2 patients** in the sandbox to see the conflict detection in action.
 
+> **Disclaimer**: The live demo connects to the public **SMART HealthIT FHIR Sandbox**. Service availability depends on their server status and may experience occasional downtime.
+
 ## 🚀 Key Features
 
 -   **SMART on FHIR Integration**: Seamlessly authenticates and retrieves patient data (Demographics, Medications, Conditions) from FHIR-compliant EHRs (tested with Logica/Meld Sandbox).
@@ -132,6 +134,11 @@ rx-concile/
 │   └── medication-utils.ts # Logic for finding duplicates
 └── public/
 ```
+
+## 🔮 Future Roadmap
+
+-   **Patient-Friendly Summaries**: AI-driven "Plain English" explanations of complex medical regimens for patients.
+-   **Restart Logic**: Workflows to handle medication restart logic for previously discontinued drugs.
 
 ## 🤝 Contributing
 
